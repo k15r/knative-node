@@ -30,18 +30,44 @@ metadata:
 spec:
   runLatest:
     configuration:
+      build:
+        serviceAccountName: build-bot 
+        source:
+          git:
+            url: https://github.com/k15r/knative-node.git
+            revision: master
+        steps:
+        - name: build-and-push
+          image: gcr.io/kaniko-project/executor
+          args:
+          - --dockerfile=/workspace/Dockerfile
+          - --destination=k15r/knative-node
+          volumeMounts:
+          - name: bla-deps
+            mountPath: /src
+        volumes:
+        - name: bla-deps
+          configMap:
+            defaultMode: 420
+            name: bla-knative
       revisionTemplate:
         spec:
           container:
-            image: kubeless/nodejs@sha256:5c3c21cf29231f25a0d7d2669c6f18c686894bf44e975fcbbbb420c6d045f7e7
+            image: k15r/knative-node
             env:
-            - name: KUBELESS_INSTALL_VOLUME 
+            - name: FUNC_HANDLER
+              value: main
+            - name: MOD_NAME
+              value: handler
+            - name: FUNC_TIMEOUT
+              value: "180"
+            - name: FUNC_RUNTIME
+              value: nodejs8
+            - name: FUNC_MEMORY_LIMIT
+              value: 128Mi
+            - name: FUNC_PORT
+              value: "8080"
+            - name: KUBELESS_INSTALL_VOLUME
               value: /kubeless
-            volumeMounts:
-            - mountPath: /kubeless
-              name: bla-deps
-          volumes:
-          - configMap:
-              defaultMode: 420
-              name: bla-knative
-            name: bla-deps
+            - name: NODE_PATH
+              value: $(KUBELESS_INSTALL_VOLUME)/node_modules
