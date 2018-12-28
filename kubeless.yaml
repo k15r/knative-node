@@ -22,13 +22,11 @@ metadata:
     created-by: kubeless
     function: bla
   name: bla-knative
-  namespace: stage
 ---
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
   name: helloworld-nodejs
-  namespace: stage
 spec:
   runLatest:
     configuration:
