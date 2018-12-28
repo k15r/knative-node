@@ -1,0 +1,49 @@
+apiVersion: v1
+data:
+  handler: handler.main
+  handler.js: |-
+    module.exports = { main: function (event, context) {
+    return "blaa"
+    } }
+  package.json: |-
+    {
+          "name": "app",
+          "version": "0.0.1",
+          "dependencies": {
+            "redis":  "2.8.0",
+            "double-ended-queue": "2.1.0-0",
+            "redis-commands": "1.3.1",
+            "redis-parser": "2.6.0"
+          }
+    }
+kind: ConfigMap
+metadata:
+  labels:
+    created-by: kubeless
+    function: bla
+  name: bla-knative
+  namespace: stage
+---
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: helloworld-nodejs
+  namespace: stage
+spec:
+  runLatest:
+    configuration:
+      revisionTemplate:
+        spec:
+          container:
+            image: kubeless/nodejs@sha256:5c3c21cf29231f25a0d7d2669c6f18c686894bf44e975fcbbbb420c6d045f7e7
+            env:
+            - name: KUBELESS_INSTALL_VOLUME 
+              value: /kubeless
+            volumeMounts:
+            - mountPath: /kubeless
+              name: bla-deps
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: bla-knative
+            name: bla-deps
