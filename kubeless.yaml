@@ -1,3 +1,11 @@
+ apiVersion: v1
+ kind: ServiceAccount
+ metadata:
+   name: build-bot
+ secrets:
+ - name: basic-user-pass
+---
+
 apiVersion: v1
 data:
   handler: handler.main
@@ -23,6 +31,7 @@ metadata:
     function: bla
   name: bla-knative
 ---
+
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
