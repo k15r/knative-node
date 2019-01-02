@@ -5,7 +5,6 @@
  secrets:
  - name: basic-user-pass
 ---
-
 apiVersion: v1
 data:
   Dockerfile: |-
@@ -15,11 +14,8 @@ data:
     USER node
 kind: ConfigMap
 metadata:
-  labels: created-by: kubeless
-    function: bla
   name: bla-dockerfile
 ---
-
 apiVersion: v1
 data:
   handler: handler.main
@@ -41,7 +37,6 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    created-by: kubeless
     function: bla
   name: bla-knative
 ---
