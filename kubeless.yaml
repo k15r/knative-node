@@ -8,6 +8,20 @@
 
 apiVersion: v1
 data:
+  Dockerfile: |-
+    FROM kubeless/nodejs@sha256:5c3c21cf29231f25a0d7d2669c6f18c686894bf44e975fcbbbb420c6d045f7e7
+    USER root
+    RUN mkdir /kubeless && cp /src/handler.js /kubeless && /kubeless-npm-install.sh
+    USER node
+kind: ConfigMap
+metadata:
+  labels: created-by: kubeless
+    function: bla
+  name: bla-dockerfile
+---
+
+apiVersion: v1
+data:
   handler: handler.main
   handler.js: |-
     module.exports = { main: function (event, context) {
@@ -41,10 +55,6 @@ spec:
     configuration:
       build:
         serviceAccountName: build-bot 
-        source:
-          git:
-            url: https://github.com/k15r/knative-node.git
-            revision: master
         steps:
         - name: build-and-push
           image: gcr.io/kaniko-project/executor
@@ -52,9 +62,15 @@ spec:
           - --dockerfile=/workspace/Dockerfile
           - --destination=k15r/knative-node
           volumeMounts:
+          - name: bla-dockerfile-vol
+            mountPath: /workspace
           - name: bla-deps
             mountPath: /src
         volumes:
+        - name: bla-dockerfile-vol
+          configMap:
+            defaultMode: 420
+            name: bla-dockerfile
         - name: bla-deps
           configMap:
             defaultMode: 420
